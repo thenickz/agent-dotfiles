@@ -6,7 +6,8 @@ SKILLS_DIR="$REPO_DIR/skills"
 CLAUDE_DIR="$HOME/.claude/skills"
 AGENTS_DIR="$HOME/.agents/skills"
 OPENCODE_PLUGIN_DIR="$HOME/.config/opencode/plugins"
-PLUGIN_SRC="$REPO_DIR/plugins/opencode-memory.js"
+NOTIFY_SRC="$REPO_DIR/scripts/notify.sh"
+NOTIFY_DEST="$HOME/.config/opencode/notify.sh"
 
 DRY=false
 UNLINK=false
@@ -19,9 +20,10 @@ tools' global paths.
 Usage: ./install.sh [--dry-run] [--unlink]
 
 Paths (created if missing):
-  ~/.claude/skills/           Claude Code + opencode
-  ~/.agents/skills/           Codex + opencode
-  ~/.config/opencode/plugins/ opencode memory enforcement plugin
+  ~/.claude/skills/            Claude Code + opencode
+  ~/.agents/skills/            Codex + opencode
+  ~/.config/opencode/plugins/  opencode plugins (memory enforcement + notify)
+  ~/.config/opencode/notify.sh OS notification dispatcher for the notify plugin
 
 Options:
   --dry-run  show what it would do without changing anything
@@ -96,10 +98,15 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   link_one "$skill_dir" "$AGENTS_DIR/$name"
 done
 
-if [[ -f "$PLUGIN_SRC" ]]; then
-  link_one "$PLUGIN_SRC" "$OPENCODE_PLUGIN_DIR/opencode-memory.js"
+for plugin_src in "$REPO_DIR"/plugins/*.js; do
+  [[ -e "$plugin_src" ]] || continue
+  link_one "$plugin_src" "$OPENCODE_PLUGIN_DIR/$(basename "$plugin_src")"
+done
+
+if [[ -f "$NOTIFY_SRC" ]]; then
+  link_one "$NOTIFY_SRC" "$NOTIFY_DEST"
 else
-  echo "skip opencode plugin (missing $PLUGIN_SRC)"
+  echo "skip notify.sh (missing $NOTIFY_SRC)"
 fi
 
 echo "done."

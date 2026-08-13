@@ -64,20 +64,36 @@ for doc in templates/ONBOARDING.md SETUP.md; do
   fi
 done
 
-echo "## opencode plugin"
-if [[ ! -f "$REPO_DIR/plugins/opencode-memory.js" ]]; then
-  echo "FAIL: plugins/opencode-memory.js does not exist"
+echo "## opencode plugins"
+for plugin in "$REPO_DIR"/plugins/*.js; do
+  [[ -e "$plugin" ]] || continue
+  name="$(basename "$plugin")"
+  if ! command -v node >/dev/null 2>&1; then
+    echo "  ok: $name (node not available, skipped syntax check)"
+    continue
+  fi
+  if node --input-type=module --check < "$plugin" 2>/dev/null; then
+    echo "  ok: $name syntax (node)"
+  else
+    echo "FAIL: $name has a syntax error"
+    FAIL=1
+  fi
+done
+
+echo "## notify.sh dispatcher"
+if [[ ! -f "$REPO_DIR/scripts/notify.sh" ]]; then
+  echo "FAIL: scripts/notify.sh does not exist"
   FAIL=1
 else
-  if command -v node >/dev/null 2>&1; then
-    if node --input-type=module --check < "$REPO_DIR/plugins/opencode-memory.js" 2>/dev/null; then
-      echo "  ok: plugins/opencode-memory.js syntax (node)"
-    else
-      echo "FAIL: plugins/opencode-memory.js has a syntax error"
-      FAIL=1
-    fi
+  if [[ ! -x "$REPO_DIR/scripts/notify.sh" ]]; then
+    echo "FAIL: scripts/notify.sh is not executable"
+    FAIL=1
+  fi
+  if bash -n "$REPO_DIR/scripts/notify.sh" 2>/dev/null; then
+    echo "  ok: scripts/notify.sh syntax (bash)"
   else
-    echo "  ok: plugins/opencode-memory.js (node not available, skipped syntax check)"
+    echo "FAIL: scripts/notify.sh has a syntax error"
+    FAIL=1
   fi
 fi
 

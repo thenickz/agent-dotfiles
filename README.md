@@ -31,10 +31,10 @@ Nothing stays trapped in the session context. Knowledge lives in versioned files
 ```
 templates/   # files to copy into new projects (AGENTS.md, ONBOARDING.md)
 skills/      # portable skills (Agent Skills format)
-plugins/     # opencode memory enforcement plugin
-scripts/     # validation
+plugins/     # opencode plugins (memory enforcement + notify)
+scripts/     # validation + OS notification dispatcher (notify.sh)
 SETUP.md     # one-shot prompt for another LLM to bootstrap a project
-install.sh   # installs the skills + plugin via symlinks
+install.sh   # installs the skills + plugins via symlinks
 LICENSE      # MIT
 ```
 
@@ -60,6 +60,25 @@ Updating `memory.md` is normally voluntary — the agent follows the **active-br
 
 To disable it: `./install.sh --unlink` removes all symlinks including the plugin, or delete `~/.config/opencode/plugins/opencode-memory.js`. No effect on Claude Code or Codex.
 
+## Notifications (opencode plugin)
+
+`plugins/opencode-notify.js` (installed by `./install.sh`) sends a notification when opencode asks a question, asks for permission, or finishes a response. Two channels, each independently togglable via env vars:
+
+- **OS desktop** — `scripts/notify.sh` auto-detects the platform: WSL → native Windows toast (`wsl-notify-send.exe`, fallback PowerShell BurntToast), macOS → `osascript`, Linux → `notify-send`, Windows → BurntToast.
+- **Telegram** — optional; one `sendMessage` via the Bot API, active only when `OPENCODE_TELEGRAM_BOT_TOKEN` and `OPENCODE_TELEGRAM_CHAT_ID` are set.
+
+Key env vars (all optional, every event defaults to on):
+
+| Var | Meaning |
+|---|---|
+| `OPENCODE_NOTIFY_DISABLED=1` | master switch |
+| `OPENCODE_NOTIFY_ON_DONE` / `_ON_PERMISSION` / `_ON_QUESTION=0` | disable an OS event |
+| `OPENCODE_NOTIFY_OS=auto` | `auto` \| `darwin` \| `linux` \| `wsl` \| `windows` \| `none` |
+| `OPENCODE_TELEGRAM_BOT_TOKEN` + `OPENCODE_TELEGRAM_CHAT_ID` | enables Telegram |
+| `OPENCODE_TELEGRAM_ON_DONE` / `_ON_PERMISSION` / `_ON_QUESTION=0` | disable a Telegram event |
+
+Test the OS dispatcher: `~/.config/opencode/notify.sh "opencode" "test" done`. For the guided Telegram setup (BotFather, chat id, smoke test) load the **notify** skill or see `skills/notify/SKILL.md`. Telegram needs `env` in the shell that starts opencode; never put the token in `memory.md`/`AGENTS.md`.
+
 ## Bootstrap a new project with another LLM
 
 No manual setup required: give any LLM the prompt in [SETUP.md](SETUP.md) (e.g. "Read `https://github.com/thenickz/agent-dotfiles` and configure a new project"). It clones the repo, installs the skills and plugin, copies `AGENTS.md` + `ONBOARDING.md` into the project, scaffolds the brain files, and runs the onboarding — all in one shot.
@@ -71,6 +90,7 @@ No manual setup required: give any LLM the prompt in [SETUP.md](SETUP.md) (e.g. 
 - **git-conventional-commits** — commits and PRs following Conventional Commits (`type(scope): summary`).
 - **github** — GitHub workflows with the `gh` CLI (repos, PRs, issues, releases, Actions).
 - **scaffold-agents-md** — new-project bootstrap: generates a tailored AGENTS.md + memory.md + architecture.md.
+- **notify** — guided setup for opencode notifications (OS desktop + optional Telegram).
 
 ## Authorship
 
