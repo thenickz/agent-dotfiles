@@ -8,6 +8,8 @@ AI agent dotfiles: a project standard + a set of portable skills that turn any r
 - [Repository structure](#repository-structure)
 - [Installation](#installation)
 - [Using in a new project](#using-in-a-new-project)
+- [Memory enforcement (opencode plugin)](#memory-enforcement-opencode-plugin)
+- [Bootstrap a new project with another LLM](#bootstrap-a-new-project-with-another-llm)
 - [Skills](#skills)
 - [Authorship](#authorship)
 - [Inspirations](#inspirations)
@@ -27,20 +29,22 @@ Nothing stays trapped in the session context. Knowledge lives in versioned files
 ## Repository structure
 
 ```
-templates/   # files to copy into new projects
+templates/   # files to copy into new projects (AGENTS.md, ONBOARDING.md)
 skills/      # portable skills (Agent Skills format)
+plugins/     # opencode memory enforcement plugin
 scripts/     # validation
-install.sh   # installs the skills via symlinks
+SETUP.md     # one-shot prompt for another LLM to bootstrap a project
+install.sh   # installs the skills + plugin via symlinks
 LICENSE      # MIT
 ```
 
 ## Installation
 
 ```bash
-./install.sh            # creates symlinks in ~/.claude/skills and ~/.agents/skills
+./install.sh            # creates symlinks in ~/.claude/skills, ~/.agents/skills and ~/.config/opencode/plugins
 ./install.sh --dry-run  # shows what it would do, without changing anything
 ./install.sh --unlink   # removes the symlinks
-./scripts/validate.sh   # validates skill frontmatter and template sync
+./scripts/validate.sh   # validates skill frontmatter, template sync, plugin, setup docs
 ```
 
 Why symlinks: a single source of truth in the repo; edit here and every tool (Claude Code, opencode, Codex) sees the change immediately. On a new machine: `git clone` + `./install.sh`.
@@ -49,6 +53,16 @@ Why symlinks: a single source of truth in the repo; edit here and every tool (Cl
 
 1. Copy `templates/AGENTS.md` (and adapt it), or ask the agent to run the **scaffold-agents-md** skill — it analyzes the project and generates `AGENTS.md` + `memory.md` + `architecture/` with verified commands.
 2. From then on the brain is on: `memory.md` is read and updated automatically every session (**active-brain-memory**), and the map stays in sync (**architecture**).
+
+## Memory enforcement (opencode plugin)
+
+Updating `memory.md` is normally voluntary — the agent follows the **active-brain-memory** skill. On opencode, `plugins/opencode-memory.js` (installed by `./install.sh` into `~/.config/opencode/plugins/`) makes it automatic: at the end of every turn (`session.idle`) it checks whether `memory.md` was touched in this project. If not, it injects a prompt asking the agent to run **active-brain-memory** and update `memory.md`; when the model saves, the next `session.idle` becomes a no-op. It does nothing in projects without `memory.md` or without git.
+
+To disable it: `./install.sh --unlink` removes all symlinks including the plugin, or delete `~/.config/opencode/plugins/opencode-memory.js`. No effect on Claude Code or Codex.
+
+## Bootstrap a new project with another LLM
+
+No manual setup required: give any LLM the prompt in [SETUP.md](SETUP.md) (e.g. "Read `https://github.com/thenickz/agent-dotfiles` and configure a new project"). It clones the repo, installs the skills and plugin, copies `AGENTS.md` + `ONBOARDING.md` into the project, scaffolds the brain files, and runs the onboarding — all in one shot.
 
 ## Skills
 

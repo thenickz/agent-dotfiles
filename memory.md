@@ -4,8 +4,8 @@
 > Short bullets, one line each. Keep the file < ~150 lines.
 
 ## Current State
-- in-progress: — (repo implemented, skills installed)
-- next: publish on GitHub (`gh repo create agent-dotfiles --public` + push); test `scaffold-agents-md` on a new project; add save hardening (hook/plugin) if needed
+- in-progress: — (repo implemented, skills + plugin installed)
+- next: verify the memory plugin live loop (fresh opencode session); test one-shot setup (SETUP.md) on a new project
 
 ## Decisions
 - 2026-08-12 | Agent dotfiles repo: `AGENTS.md` as the single source; NO `CLAUDE.md`, NO `opencode.json` | user does not use Claude Code; opencode reads AGENTS.md natively
@@ -18,6 +18,8 @@
 - 2026-08-12 | MIT license; README with Authorship (authorial skills, personal preferences) and Inspirations sections | give credit and allow reuse
 - 2026-08-12 | Entire repo in English; Personal Preferences section (blank) added to AGENTS.md | user preference: code/docs in English, interaction language configurable later
 - 2026-08-12 | Commits authored by the user only — no `Co-authored-by` trailers (recorded as a Personal Preference in AGENTS.md) | user preference
+- 2026-08-12 | Memory enforcement for opencode via `plugins/opencode-memory.js`: on `session.idle`, if `memory.md` exists and `git status --porcelain -- memory.md` is empty, inject a prompt (active-brain-memory) to update it | memory.md updates were voluntary (skill-following); a plugin makes them automatic on opencode only, with natural termination once the model saves and a last-user-message loop guard
+- 2026-08-12 | `templates/ONBOARDING.md` (temporary first-run prompt) + `SETUP.md` (one-shot prompt for another LLM to clone/install/copy/onboard) | no manual setup: a single prompt bootstraps a new project with the brain system
 
 ## Learnings
 - AGENTS.md is an open standard (Linux Foundation/AAIF), read by 20+ tools; < 150 lines, exact commands, code examples, explicit boundaries.
@@ -27,15 +29,18 @@
 - AGENTS.md anti-patterns: too vague, contradictory rules, duplication across formats.
 
 ## Workflows & Commands
-- Install skills: `./install.sh` (symlinks in `~/.claude/skills` and `~/.agents/skills`)
+- Install skills + plugin: `./install.sh` (symlinks in `~/.claude/skills`, `~/.agents/skills`, `~/.config/opencode/plugins`)
 - Preview installation: `./install.sh --dry-run`
 - Remove: `./install.sh --unlink`
-- Validate skills/templates: `./scripts/validate.sh`
-- New project: `scaffold-agents-md` skill → AGENTS.md + memory.md + architecture.md
+- Validate skills/templates/plugin/setup docs: `./scripts/validate.sh`
+- New project: `SETUP.md` one-shot prompt (clone, install, copy templates + ONBOARDING.md, onboard)
+- Disable memory enforcement: delete `~/.config/opencode/plugins/opencode-memory.js` or `./install.sh --unlink`
 
 ## Primordial Flows
 - NODE(A2) -> NODE(B) -> NODE(C) (globally installed skills work in every project)
+- NODE(A4) -> NODE(B) -> NODE(C) (opencode memory plugin enforces memory.md updates)
 - NODE(A1) -> NODE(C) (templates copied manually or via scaffold)
+- NODE(A5) -> NODE(C) (one-shot setup: SETUP.md + ONBOARDING.md)
 - AGENTS.md -> memory.md <-> architecture.md (brain loop)
 
 ## Session Log
@@ -44,3 +49,5 @@
 - 2026-08-12 | README gained Authorship/Inspirations/License sections; LICENSE (MIT) created
 - 2026-08-12 | Entire repo translated to English; README got a Summary (TOC); Personal Preferences section added to AGENTS.md (blank)
 - 2026-08-12 | Repo published: branch renamed to main, GitHub repo created, all commits in user authorship (no co-author), pushed
+- 2026-08-12 | Memory enforcement plugin `plugins/opencode-memory.js` created (session.idle + git status + injected prompt + loop guard); install.sh/validate.sh extended (plugin symlink, node ESM syntax check); README/AGENTS.md updated; architecture + memory mapped (NODE A4). Validated: validate.sh OK, install.sh --dry-run shows plugin link, node --check OK
+- 2026-08-12 | Plugin live loop verified headless (opencode serve + SDK): turn 1 → plugin injected, model appended Session Log bullet (memory.md = ` M`); turn 2 with memory already dirty → no re-injection (natural termination). Temp project removed

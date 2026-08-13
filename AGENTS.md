@@ -9,23 +9,27 @@ AI agent dotfiles: copyable templates for new projects + portable skills (persis
 
 ## Commands
 > EXACT and verified commands.
-- Install skills (symlinks): `./install.sh`
+- Install skills + opencode memory plugin (symlinks): `./install.sh`
 - Preview what it would do: `./install.sh --dry-run`
 - Remove symlinks: `./install.sh --unlink`
-- Validate skills/templates: `./scripts/validate.sh`
+- Validate skills/templates/plugin/setup docs: `./scripts/validate.sh`
+- Bootstrap a new project with another LLM: see `SETUP.md` (one-shot prompt)
 
 ## Code style
 - Skill name: kebab-case, lowercase, ≤ 64 chars, folder = name.
 - `description`: "what it does" + "when to use"; lead with trigger keywords.
 - Portability: skills live in `skills/<name>/`; installed via symlinks in `~/.claude/skills` and `~/.agents/skills`.
 - Reference instead of duplicating; keep `templates/AGENTS.md` in sync with `skills/scaffold-agents-md/templates/AGENTS.md`.
+- Plugin (`plugins/opencode-memory.js`): ESM, no external deps, uses only Bun.file, `$`, and the SDK client.
 
 ## Structure
 ```
-templates/     # files to copy into new projects
+templates/     # files to copy into new projects (AGENTS.md, ONBOARDING.md)
 skills/        # portable skills (SKILL.md)
+plugins/       # opencode memory enforcement plugin
 scripts/       # utilities (validate.sh)
 architecture/  # map details (flows.md)
+SETUP.md       # one-shot prompt for another LLM to bootstrap a project
 ```
 
 ## Personal Preferences
