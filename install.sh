@@ -5,19 +5,23 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_DIR="$REPO_DIR/skills"
 CLAUDE_DIR="$HOME/.claude/skills"
 AGENTS_DIR="$HOME/.agents/skills"
+OPENCODE_PLUGIN_DIR="$HOME/.config/opencode/plugins"
+PLUGIN_SRC="$REPO_DIR/plugins/opencode-memory.js"
 
 DRY=false
 UNLINK=false
 
 usage() {
   cat <<'EOF'
-Installs the repo skills as symlinks in the tools' global paths.
+Installs the repo skills and the opencode memory plugin as symlinks in the
+tools' global paths.
 
 Usage: ./install.sh [--dry-run] [--unlink]
 
 Paths (created if missing):
-  ~/.claude/skills/   Claude Code + opencode
-  ~/.agents/skills/   Codex + opencode
+  ~/.claude/skills/           Claude Code + opencode
+  ~/.agents/skills/           Codex + opencode
+  ~/.config/opencode/plugins/ opencode memory enforcement plugin
 
 Options:
   --dry-run  show what it would do without changing anything
@@ -78,7 +82,7 @@ if [[ "$DRY" == true ]]; then
 fi
 
 if [[ "$UNLINK" == false && "$DRY" == false ]]; then
-  mkdir -p "$CLAUDE_DIR" "$AGENTS_DIR"
+  mkdir -p "$CLAUDE_DIR" "$AGENTS_DIR" "$OPENCODE_PLUGIN_DIR"
 fi
 
 for skill_dir in "$SKILLS_DIR"/*/; do
@@ -91,5 +95,11 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   link_one "$skill_dir" "$CLAUDE_DIR/$name"
   link_one "$skill_dir" "$AGENTS_DIR/$name"
 done
+
+if [[ -f "$PLUGIN_SRC" ]]; then
+  link_one "$PLUGIN_SRC" "$OPENCODE_PLUGIN_DIR/opencode-memory.js"
+else
+  echo "skip opencode plugin (missing $PLUGIN_SRC)"
+fi
 
 echo "done."

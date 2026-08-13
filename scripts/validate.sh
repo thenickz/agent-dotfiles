@@ -54,6 +54,33 @@ else
   echo "  ok: AGENTS.md template in sync"
 fi
 
+echo "## Onboarding"
+for doc in templates/ONBOARDING.md SETUP.md; do
+  if [[ ! -f "$REPO_DIR/$doc" ]]; then
+    echo "FAIL: $doc does not exist"
+    FAIL=1
+  else
+    echo "  ok: $doc"
+  fi
+done
+
+echo "## opencode plugin"
+if [[ ! -f "$REPO_DIR/plugins/opencode-memory.js" ]]; then
+  echo "FAIL: plugins/opencode-memory.js does not exist"
+  FAIL=1
+else
+  if command -v node >/dev/null 2>&1; then
+    if node --input-type=module --check < "$REPO_DIR/plugins/opencode-memory.js" 2>/dev/null; then
+      echo "  ok: plugins/opencode-memory.js syntax (node)"
+    else
+      echo "FAIL: plugins/opencode-memory.js has a syntax error"
+      FAIL=1
+    fi
+  else
+    echo "  ok: plugins/opencode-memory.js (node not available, skipped syntax check)"
+  fi
+fi
+
 if [[ "$FAIL" -eq 0 ]]; then
   echo "All good."
 else
