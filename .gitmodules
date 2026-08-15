@@ -1,0 +1,6 @@
+[submodule "deps/opencode-notify"]
+	path = deps/opencode-notify
+	url = git@github.com:thenickz/opencode-notify.git
+[submodule "deps/active-brain-memory"]
+	path = deps/active-brain-memory
+	url = git@github.com:thenickz/active-brain-memory.git

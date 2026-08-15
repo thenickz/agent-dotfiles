@@ -5,34 +5,43 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_DIR="$REPO_DIR/skills"
 CLAUDE_DIR="$HOME/.claude/skills"
 AGENTS_DIR="$HOME/.agents/skills"
-OPENCODE_PLUGIN_DIR="$HOME/.config/opencode/plugins"
-NOTIFY_SRC="$REPO_DIR/scripts/notify.sh"
-NOTIFY_DEST="$HOME/.config/opencode/notify.sh"
+
+DEPS=(
+  "$REPO_DIR/deps/opencode-notify"
+  "$REPO_DIR/deps/active-brain-memory"
+)
 
 DRY=false
 UNLINK=false
 
 usage() {
   cat <<'EOF'
-Installs the repo skills and the opencode memory plugin as symlinks in the
-tools' global paths.
+Installs the repo skills as symlinks in the tools' global paths and delegates
+the opencode plugins and the notify dispatcher to the dependency repos
+(git submodules in deps/).
 
 Usage: ./install.sh [--dry-run] [--unlink]
 
 Paths (created if missing):
-  ~/.claude/skills/            Claude Code + opencode
-  ~/.agents/skills/            Codex + opencode
-  ~/.config/opencode/plugins/  opencode plugins (memory enforcement + notify)
-  ~/.config/opencode/notify.sh OS notification dispatcher for the notify plugin
+  ~/.claude/skills/            local skills (Claude Code + opencode)
+  ~/.agents/skills/            local skills (Codex + opencode)
+
+Delegated to deps/ (see each repo's own install.sh):
+  deps/opencode-notify         notify plugin + dispatcher + skill + env template
+  deps/active-brain-memory     memory enforcement plugin + skill
 
 Options:
   --dry-run  show what it would do without changing anything
-  --unlink   remove the created symlinks (does not touch the repo)
+  --unlink   remove the created symlinks (does not touch the repos)
+
+Submodules are initialized automatically (git submodule update --init).
 
 Non-destructive: never overwrites an existing dir/file that is not a symlink
 to this repo; in those cases it skips with a warning.
 EOF
 }
+
+orig_args=("$@")
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -47,6 +56,11 @@ done
 if [[ ! -d "$SKILLS_DIR" ]]; then
   echo "Error: skills/ dir not found at $SKILLS_DIR" >&2
   exit 1
+fi
+
+if [[ "$UNLINK" == false && "$DRY" == false ]]; then
+  echo "## Initializing submodules (deps/)"
+  git -C "$REPO_DIR" submodule update --init --recursive
 fi
 
 link_one() {
@@ -84,9 +98,10 @@ if [[ "$DRY" == true ]]; then
 fi
 
 if [[ "$UNLINK" == false && "$DRY" == false ]]; then
-  mkdir -p "$CLAUDE_DIR" "$AGENTS_DIR" "$OPENCODE_PLUGIN_DIR"
+  mkdir -p "$CLAUDE_DIR" "$AGENTS_DIR"
 fi
 
+echo "## Local skills"
 for skill_dir in "$SKILLS_DIR"/*/; do
   [[ -e "$skill_dir" ]] || continue
   name="$(basename "$skill_dir")"
@@ -98,15 +113,14 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   link_one "$skill_dir" "$AGENTS_DIR/$name"
 done
 
-for plugin_src in "$REPO_DIR"/plugins/*.js; do
-  [[ -e "$plugin_src" ]] || continue
-  link_one "$plugin_src" "$OPENCODE_PLUGIN_DIR/$(basename "$plugin_src")"
+echo "## Dependencies"
+for dep in "${DEPS[@]}"; do
+  if [[ ! -f "$dep/install.sh" ]]; then
+    echo "SKIP $dep (submodule not checked out — run ./install.sh first)"
+    continue
+  fi
+  echo "delegating: $dep/install.sh ${orig_args[*]}"
+  "$dep/install.sh" "${orig_args[@]}"
 done
-
-if [[ -f "$NOTIFY_SRC" ]]; then
-  link_one "$NOTIFY_SRC" "$NOTIFY_DEST"
-else
-  echo "skip notify.sh (missing $NOTIFY_SRC)"
-fi
 
 echo "done."

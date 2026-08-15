@@ -9,10 +9,10 @@ AI agent dotfiles: copyable templates for new projects + portable skills (persis
 
 ## Commands
 > EXACT and verified commands.
-- Install skills + opencode plugins (memory + notify): `./install.sh`
+- Install skills + opencode plugins (memory + notify), inits deps/ submodules: `./install.sh`
 - Preview what it would do: `./install.sh --dry-run`
 - Remove symlinks: `./install.sh --unlink`
-- Validate skills/templates/plugins/setup docs: `./scripts/validate.sh`
+- Validate skills/templates/deps/setup docs: `./scripts/validate.sh`
 - OS notification dispatcher (test): `~/.config/opencode/notify.sh "title" "message" done`
 - Bootstrap a new project with another LLM: see `SETUP.md` (one-shot prompt)
 
@@ -21,14 +21,15 @@ AI agent dotfiles: copyable templates for new projects + portable skills (persis
 - `description`: "what it does" + "when to use"; lead with trigger keywords.
 - Portability: skills live in `skills/<name>/`; installed via symlinks in `~/.claude/skills` and `~/.agents/skills`.
 - Reference instead of duplicating; keep `templates/AGENTS.md` in sync with `skills/scaffold-agents-md/templates/AGENTS.md`.
-- Plugin (`plugins/*.js`): ESM, no external deps, uses only Bun.file, `$`, and the SDK client.
+- `notify` and `active-brain-memory` are git submodules in `deps/` (single source); keep `templates/memory.md` in sync with `deps/active-brain-memory/templates/memory.md`.
+- Plugin (`deps/*/plugins/*.js`): ESM, no external deps, uses only Bun.file, `$`, and the SDK client.
 
 ## Structure
 ```
 templates/     # files to copy into new projects (AGENTS.md, ONBOARDING.md)
 skills/        # portable skills (SKILL.md)
-plugins/       # opencode plugins (memory enforcement + notify)
-scripts/       # utilities (validate.sh, notify.sh)
+deps/          # git submodules: opencode-notify, active-brain-memory (plugins + dispatcher)
+scripts/       # utilities (validate.sh)
 architecture/  # map details (flows.md)
 SETUP.md       # one-shot prompt for another LLM to bootstrap a project
 ```
@@ -43,6 +44,7 @@ SETUP.md       # one-shot prompt for another LLM to bootstrap a project
 - `install.sh` NEVER overwrites existing config (skips with a warning).
 - Never store secrets in `memory.md` or `AGENTS.md`.
 - `session-*.md` files are not versioned (personal transcripts).
+- `memory.md` is gitignored in this repo (personal state, not versioned); the memory enforcement plugin auto-skips gitignored projects.
 
 ## Git workflow
 - Conventional commits: `type(scope): summary` (git-conventional-commits skill).
@@ -55,7 +57,7 @@ This project uses the **active-brain-memory** and **architecture** skills.
 - At the START of every session, READ `memory.md` and `architecture.md` (always).
 - Update `memory.md` continuously: decisions, learnings, workflows, session bullets — without the user asking.
 - Keep the Node Registry and flows in `architecture.md` in sync when the structure changes.
-- `memory.md` and `architecture.md` are the source of truth for this project's state.
+- `memory.md` (local, gitignored) and `architecture.md` (versioned) are the source of truth for this project's state.
 
 ## Verification
 - After changes to skills/templates: run `./scripts/validate.sh` and show the output.

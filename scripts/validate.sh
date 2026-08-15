@@ -36,7 +36,7 @@ check_skill() {
   fi
 }
 
-echo "## Skills"
+echo "## Skills (local)"
 for dir in "$REPO_DIR"/skills/*/; do
   [[ -e "$dir" ]] || continue
   check_skill "$dir"
@@ -54,6 +54,16 @@ else
   echo "  ok: AGENTS.md template in sync"
 fi
 
+if [[ ! -f "$REPO_DIR/deps/active-brain-memory/templates/memory.md" ]]; then
+  echo "FAIL: missing deps/active-brain-memory/templates/memory.md (submodule not checked out?)"
+  FAIL=1
+elif ! diff -q "$REPO_DIR/templates/memory.md" "$REPO_DIR/deps/active-brain-memory/templates/memory.md" >/dev/null 2>&1; then
+  echo "FAIL: templates/memory.md ≠ deps/active-brain-memory/templates/memory.md"
+  FAIL=1
+else
+  echo "  ok: memory.md template in sync"
+fi
+
 echo "## Onboarding"
 for doc in templates/ONBOARDING.md SETUP.md; do
   if [[ ! -f "$REPO_DIR/$doc" ]]; then
@@ -64,38 +74,34 @@ for doc in templates/ONBOARDING.md SETUP.md; do
   fi
 done
 
-echo "## opencode plugins"
-for plugin in "$REPO_DIR"/plugins/*.js; do
-  [[ -e "$plugin" ]] || continue
-  name="$(basename "$plugin")"
-  if ! command -v node >/dev/null 2>&1; then
-    echo "  ok: $name (node not available, skipped syntax check)"
+echo "## Dependencies (submodules)"
+while IFS= read -r line; do
+  status="${line:0:1}"
+  name="$(echo "$line" | awk '{print $2}')"
+  case "$status" in
+    "-") echo "FAIL: $name is not initialized (run ./install.sh)" ; FAIL=1 ;;
+    "+") echo "FAIL: $name is at a different commit than pinned (run git submodule update)" ; FAIL=1 ;;
+    " ") echo "  ok: $name" ;;
+    *) echo "FAIL: $name unexpected submodule status" ; FAIL=1 ;;
+  esac
+done < <(git -C "$REPO_DIR" submodule status)
+
+for dep in "$REPO_DIR"/deps/*/; do
+  [[ -d "$dep" ]] || continue
+  dep_name="$(basename "$dep")"
+  if [[ ! -f "$dep/scripts/validate.sh" ]]; then
+    echo "FAIL: $dep_name/scripts/validate.sh does not exist"
+    FAIL=1
     continue
   fi
-  if node --input-type=module --check < "$plugin" 2>/dev/null; then
-    echo "  ok: $name syntax (node)"
+  echo "## Dependency validate: $dep_name"
+  if "$dep/scripts/validate.sh"; then
+    echo "  ok: $dep_name validation passed"
   else
-    echo "FAIL: $name has a syntax error"
+    echo "FAIL: $dep_name validation failed"
     FAIL=1
   fi
 done
-
-echo "## notify.sh dispatcher"
-if [[ ! -f "$REPO_DIR/scripts/notify.sh" ]]; then
-  echo "FAIL: scripts/notify.sh does not exist"
-  FAIL=1
-else
-  if [[ ! -x "$REPO_DIR/scripts/notify.sh" ]]; then
-    echo "FAIL: scripts/notify.sh is not executable"
-    FAIL=1
-  fi
-  if bash -n "$REPO_DIR/scripts/notify.sh" 2>/dev/null; then
-    echo "  ok: scripts/notify.sh syntax (bash)"
-  else
-    echo "FAIL: scripts/notify.sh has a syntax error"
-    FAIL=1
-  fi
-fi
 
 if [[ "$FAIL" -eq 0 ]]; then
   echo "All good."

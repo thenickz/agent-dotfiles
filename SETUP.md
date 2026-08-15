@@ -19,10 +19,12 @@ You are setting up a new project with the agent-dotfiles knowledge system
 (AGENTS.md + memory.md + architecture.md) in <target-project-directory>.
 
 1. Clone https://github.com/thenickz/agent-dotfiles into a temp directory
-   (or read it online).
-2. From that clone, run `./install.sh` to install the skills (global symlinks)
-   and the opencode memory enforcement plugin. It is idempotent and never
-   overwrites existing config — running it when already installed is fine.
+   (or read it online). Use `--recursive` so the deps/ submodules come along
+   (opencode-notify + active-brain-memory); `./install.sh` also inits them.
+2. From that clone, run `./install.sh` to install the skills (global symlinks),
+   the opencode memory enforcement plugin, and the notifications plugin
+   (plugins install via the dep submodules' own install.sh). It is idempotent
+   and never overwrites existing config — running it when already installed is fine.
 3. In <target-project-directory>:
    a. Run `git init` if it is not already a git repo.
    b. Copy `templates/AGENTS.md` from the clone to the project root.
