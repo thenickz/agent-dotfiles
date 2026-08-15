@@ -5,6 +5,7 @@
 
 ## Current State
 - done: `notify` extracted into `thenickz/opencode-notify` (published) and `active-brain-memory` extracted into `thenickz/active-brain-memory` (published) — both skills stay duplicated in agent-dotfiles for now (user decision); `6ff0da0` pushed
+- done: memory.md committed (`aeda763 docs: record skill extraction into standalone repos`) and pushed; working tree clean
 - done: research themes (MCPs, proxys, skills, harness, loops) — all other features discarded, only notifications chosen
 
 ## Decisions
@@ -56,6 +57,7 @@
 - AGENTS.md -> memory.md <-> architecture.md (brain loop)
 
 ## Session Log
+- 2026-08-15 | Repo refactored to deps-as-submodules: `notify`/`active-brain-memory` now pinned as git submodules in `deps/` (origin/main @ d70bcfb / b478e25, both include the env-file + enforcer fixes); duplicated copies deleted (skills, plugins, notify.sh); install.sh inits submodules + delegates install to each dep's install.sh (args pass-through bug fixed — `shift` consumed `$@`); validate.sh checks submodule status + runs each dep's validate.sh + sync-checks templates/memory.md vs dep; docs (AGENTS/README/SETUP/architecture/flows) updated with NODE(A7). `memory.md` untracked + gitignored (personal state; enforcement plugin auto-skips gitignored projects, so no more auto-prompts here). Reinstalled: all symlinks now point into deps/, validate.sh all green, dry-run clean
 - 2026-08-12 | Scope defined: base AGENTS.md + 5 skills; `active-brain-memory` and `scaffold-agents-md` approved; no CLAUDE.md/opencode.json; implementation started
 - 2026-08-12 | Repo implemented: templates, 5 skills, install.sh, validate.sh, AGENTS.md/memory/architecture (dogfood). Skills installed via symlinks and validated; validate.sh + install.sh (dry-run/real/idempotent) OK. `set -e` bug fixed. Nothing committed.
 - 2026-08-12 | README gained Authorship/Inspirations/License sections; LICENSE (MIT) created
@@ -77,3 +79,4 @@
 - 2026-08-13 | Feature committed `6ff0da0 feat: add OS and Telegram notifications for opencode` (10 files, +622; includes plugins/opencode-notify.js, scripts/notify.sh, skills/notify/, install.sh/validate.sh/docs/architecture/memory). Diff scanned for token leaks (only var names, no token value). Pushed to origin/main on 2026-08-13
 - 2026-08-13 | `notify` → own repo: created `projects/opencode-notify` (copy of plugin/dispatcher/skill), rewrote `install.sh` standalone opencode-first (plugin + notify.sh + skill → claude/agents/opencode-config, --dry-run/--unlink, idempotent verified), SKILL.md with standalone install + self-diagnosis tree (7 steps), README optimized for discoverability (event table, ASCII flow, config table, "your LLM fixes it" section), AGENTS.md + scripts/validate.sh added. Validated (all checks pass, install idempotent in isolated HOME). Committed `67c9eb2` (8 files, +929) and published: `gh repo create thenickz/opencode-notify` (public), description + 11 topics (opencode, opencode-plugin, notifications, telegram, desktop-notifications, agent-skills, ai-agent, claude-code, codex, cli, developer-tools)
 - 2026-08-13 | `active-brain-memory` → own repo: created `projects/active-brain-memory` (copy of skill/plugin/template), install.sh standalone opencode-first, SKILL.md brain-behavior-only (no troubleshooting — diagnosis moved to README per user), README optimized for discoverability with full Troubleshooting/"your LLM fixes it" section + "tested on opencode" note, AGENTS.md + validate.sh + LICENSE. Validated (all checks pass, install idempotent). Committed `105f510` (8 files, +556) and published: `gh repo create thenickz/active-brain-memory` (public), description + 11 topics (active-brain-memory, memory, memory-management, persistent-memory, agent-skills, ai-agent, opencode, claude-code, codex, knowledge-management, developer-tools)
+- 2026-08-13 | memory.md updated (extraction records + pushed state) and committed `aeda763 docs: record skill extraction into standalone repos`, pushed. Diff pre-commit scanned for secrets — clean

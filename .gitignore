@@ -7,3 +7,6 @@
 
 # Personal session transcripts (not versioned)
 session-*.md
+
+# Personal project state (not versioned)
+memory.md
