@@ -1,5 +1,7 @@
 # agent-dotfiles
 
+> v0.1.0 — https://github.com/thenickz/agent-dotfiles
+
 AI agent dotfiles: copyable templates for new projects + portable skills (persistent memory, architecture, git, github) that run on Claude Code, opencode, and Codex.
 
 ## Stack

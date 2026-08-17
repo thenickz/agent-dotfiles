@@ -18,7 +18,7 @@ usage() {
   cat <<'EOF'
 Installs the repo skills as symlinks in the tools' global paths and delegates
 the opencode plugins and the notify dispatcher to the dependency repos
-(git submodules in deps/).
+(git submodules in deps/). Automatically runs migrations if needed.
 
 Usage: ./install.sh [--dry-run] [--unlink]
 
@@ -59,6 +59,11 @@ if [[ ! -d "$SKILLS_DIR" ]]; then
 fi
 
 if [[ "$UNLINK" == false && "$DRY" == false ]]; then
+  echo "## Migrating (if needed)"
+  if [[ -f "$REPO_DIR/scripts/migrate.sh" ]]; then
+    "$REPO_DIR/scripts/migrate.sh" || echo "Migration skipped or already current."
+  fi
+
   echo "## Initializing submodules (deps/)"
   git -C "$REPO_DIR" submodule update --init --recursive
 fi

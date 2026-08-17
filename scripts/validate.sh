@@ -43,6 +43,15 @@ for dir in "$REPO_DIR"/skills/*/; do
   echo "  ok: $(basename "$dir")"
 done
 
+echo "## Version"
+if grep -qE '^> v[0-9]+\.[0-9]+\.[0-9]+' "$REPO_DIR/AGENTS.md" 2>/dev/null; then
+  version="$(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' "$REPO_DIR/AGENTS.md" | head -1)"
+  echo "  ok: $version"
+else
+  echo "FAIL: AGENTS.md missing version line (expected '> vX.Y.Z — ...')"
+  FAIL=1
+fi
+
 echo "## Template sync"
 if [[ ! -f "$REPO_DIR/skills/scaffold-agents-md/templates/AGENTS.md" ]]; then
   echo "FAIL: missing skills/scaffold-agents-md/templates/AGENTS.md"
