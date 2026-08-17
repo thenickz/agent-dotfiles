@@ -14,7 +14,7 @@ AI agent dotfiles: copyable templates for new projects + portable skills (persis
 - Remove symlinks: `./install.sh --unlink`
 - Validate skills/templates/deps/setup docs: `./scripts/validate.sh`
 - OS notification dispatcher (test): `~/.config/opencode/notify.sh "title" "message" done`
-- Bootstrap a new project with another LLM: see `SETUP.md` (one-shot prompt)
+- Bootstrap a new project with another LLM: see `agent/SETUP.md` (one-shot prompt)
 
 ## Code style
 - Skill name: kebab-case, lowercase, ≤ 64 chars, folder = name.
@@ -26,12 +26,11 @@ AI agent dotfiles: copyable templates for new projects + portable skills (persis
 
 ## Structure
 ```
+agent/         # personal agent state (gitignored): memory.md, architecture.md, flows.md, SETUP.md
 templates/     # files to copy into new projects (AGENTS.md, ONBOARDING.md)
 skills/        # portable skills (SKILL.md)
 deps/          # git submodules: opencode-notify, active-brain-memory (plugins + dispatcher)
 scripts/       # utilities (validate.sh)
-architecture/  # map details (flows.md)
-SETUP.md       # one-shot prompt for another LLM to bootstrap a project
 ```
 
 ## Personal Preferences
@@ -42,9 +41,9 @@ SETUP.md       # one-shot prompt for another LLM to bootstrap a project
 
 ## Boundaries
 - `install.sh` NEVER overwrites existing config (skips with a warning).
-- Never store secrets in `memory.md` or `AGENTS.md`.
-- `session-*.md` files are not versioned (personal transcripts).
-- `memory.md` is gitignored in this repo (personal state, not versioned); the memory enforcement plugin auto-skips gitignored projects.
+- Never store secrets in `agent/memory.md` or `AGENTS.md`.
+- `agent/session-*.md` files are not versioned (personal transcripts).
+- `agent/` is gitignored in this repo (personal state, not versioned); the memory enforcement plugin auto-skips gitignored projects.
 
 ## Git workflow
 - Conventional commits: `type(scope): summary` (git-conventional-commits skill).
@@ -54,10 +53,10 @@ SETUP.md       # one-shot prompt for another LLM to bootstrap a project
 ## Memory & Architecture (BRAIN)
 This project uses the **active-brain-memory** and **architecture** skills.
 
-- At the START of every session, READ `memory.md` and `architecture.md` (always).
-- Update `memory.md` continuously: decisions, learnings, workflows, session bullets — without the user asking.
-- Keep the Node Registry and flows in `architecture.md` in sync when the structure changes.
-- `memory.md` (local, gitignored) and `architecture.md` (versioned) are the source of truth for this project's state.
+- At the START of every session, READ `agent/memory.md` and `agent/architecture.md` (always).
+- Update `agent/memory.md` continuously: decisions, learnings, workflows, session bullets — without the user asking.
+- Keep the Node Registry and flows in `agent/architecture.md` in sync when the structure changes.
+- `agent/memory.md` (gitignored) and `agent/architecture.md` (gitignored) are the source of truth for this project's state.
 
 ## Verification
 - After changes to skills/templates: run `./scripts/validate.sh` and show the output.

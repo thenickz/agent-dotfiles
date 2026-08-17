@@ -65,7 +65,7 @@ else
 fi
 
 echo "## Onboarding"
-for doc in templates/ONBOARDING.md SETUP.md; do
+for doc in templates/ONBOARDING.md agent/SETUP.md; do
   if [[ ! -f "$REPO_DIR/$doc" ]]; then
     echo "FAIL: $doc does not exist"
     FAIL=1

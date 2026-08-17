@@ -5,8 +5,5 @@
 .vscode/
 .idea/
 
-# Personal session transcripts (not versioned)
-session-*.md
-
-# Personal project state (not versioned)
-memory.md
+# Personal agent state (not versioned)
+agent/

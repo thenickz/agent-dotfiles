@@ -23,21 +23,21 @@ AI agent dotfiles: a project standard + a set of portable skills that turn any r
 | Layer | File | What it stores |
 |---|---|---|
 | Constitution | `AGENTS.md` | stack, exact commands, style, boundaries, git workflow |
-| Brain | `memory.md` | current state, decisions, learnings, workflows, session log |
-| Map | `architecture.md` + `architecture/` | structure with `NODE(X)` notation and data flows |
+| Brain | `agent/memory.md` (gitignored) | current state, decisions, learnings, workflows, session log |
+| Map | `agent/architecture.md` + `agent/flows.md` (gitignored) | structure with `NODE(X)` notation and data flows |
 
 Nothing stays trapped in the session context. Knowledge lives in versioned files — short sessions + files = zero lost context, no re-explaining.
 
 ## Repository structure
 
 ```
-templates/   # files to copy into new projects (AGENTS.md, ONBOARDING.md)
-skills/      # portable skills (Agent Skills format)
-deps/        # git submodules: opencode-notify + active-brain-memory (plugins + dispatcher)
-scripts/     # validation (validate.sh)
-SETUP.md     # one-shot prompt for another LLM to bootstrap a project
-install.sh   # installs the skills + plugins via symlinks (inits deps/ submodules)
-LICENSE      # MIT
+agent/         # personal agent state (gitignored): memory.md, architecture.md, flows.md, SETUP.md
+templates/     # files to copy into new projects (AGENTS.md, ONBOARDING.md)
+skills/        # portable skills (Agent Skills format)
+deps/          # git submodules: opencode-notify + active-brain-memory (plugins + dispatcher)
+scripts/       # validation (validate.sh)
+install.sh     # installs the skills + plugins via symlinks (inits deps/ submodules)
+LICENSE        # MIT
 ```
 
 ## Installation
@@ -92,7 +92,7 @@ Test the OS dispatcher: `~/.config/opencode/notify.sh "opencode" "test" done`. F
 
 ## Bootstrap a new project with another LLM
 
-No manual setup required: give any LLM the prompt in [SETUP.md](SETUP.md) (e.g. "Read `https://github.com/thenickz/agent-dotfiles` and configure a new project"). It clones the repo, installs the skills and plugin, copies `AGENTS.md` + `ONBOARDING.md` into the project, scaffolds the brain files, and runs the onboarding — all in one shot.
+No manual setup required: give any LLM the prompt in [agent/SETUP.md](agent/SETUP.md) (e.g. "Read `https://github.com/thenickz/agent-dotfiles` and configure a new project"). It clones the repo, installs the skills and plugin, copies `AGENTS.md` + `ONBOARDING.md` into the project, scaffolds the brain files, and runs the onboarding — all in one shot.
 
 ## Skills
 
